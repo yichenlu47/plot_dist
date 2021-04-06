@@ -4,7 +4,7 @@ library(shiny)
 shinyUI(pageWithSidebar(
   
   # Application title
-  headerPanel("Shiny Text"),
+  headerPanel("Plot your distribution!! :D"),
   
   # Sidebar with controls to select a dataset and specify the number
   # of observations to view
@@ -22,7 +22,7 @@ shinyUI(pageWithSidebar(
         Bernoulli = "bernoulli",
         Binomial = "binomial",
         "Geometric" = "geometric",
-        "Negative Binomial" = "negbinomial",
+        "Negative Binomial" = "negbinom",
         "Poisson" = "poisson")
     ),
     
@@ -36,8 +36,8 @@ shinyUI(pageWithSidebar(
     
     conditionalPanel(
       condition = "input.dist == 'gaussian'",
-      numericInput("gaus_mean", "Mean ($$\\beta$$):", 0, step = 0.1),
-      numericInput("gaus_var", "Variance ($$\\sigma^2$$):", 1, step = 0.1),
+      numericInput("gaus_mean", "Mean:", 0, step = 0.1),
+      numericInput("gaus_var", "Variance:", 1, step = 0.1),
       withMathJax(),
       uiOutput('gaus_pdf')
     ),
@@ -51,11 +51,12 @@ shinyUI(pageWithSidebar(
     ),
     conditionalPanel(
       condition = "input.dist == 'cauchy'",
-      numericInput("cauc_loc", "Location:", -2, step = 0.1),
-      numericInput("cauc_scale", "Scale:", 0.5, step = 0.1),
+      numericInput("cauc_loc", "Location:", 0, step = 0.1),
+      numericInput("cauc_scale", "Scale:", 1, step = 0.1),
       withMathJax(),
       uiOutput('cauchy_pdf')
     ),
+    # discrete
     conditionalPanel(
       condition = "input.dist == 'bernoulli'",
       numericInput("bern_prob", "Probability:", 0.5, step = 0.1, min = 0, max = 1),
@@ -76,16 +77,17 @@ shinyUI(pageWithSidebar(
       uiOutput('geom_pmf')
     ),
     conditionalPanel(
-      condition = "input.dist == 'negbinomial'",
-      numericInput("negbinom_prob", "Probability:", 0.5, step = 0.1, min = 0, max = 1),
-      withMathJax(),
-      uiOutput('negbinom_pmf')
-    ),
-    conditionalPanel(
       condition = "input.dist == 'poisson'",
-      numericInput("pois_lambda", "Lambda:", 0.5, step = 0.1),
+      numericInput("pois_lambda", "Lambda:", 1, step = 0.1),
       withMathJax(),
       uiOutput('pois_pmf')
+    ),
+    conditionalPanel(
+      condition = "input.dist == 'negbinom'",
+      numericInput("negbinom_mean", "Mean:", 0.5, step = 0.1, min = 0, max = 1),
+      numericInput("negbinom_shape", "Shape:", 0.5, step = 0.1, min = 0, max = 1),
+      withMathJax(),
+      uiOutput('negbinom_pmf')
     )
   ),
   
