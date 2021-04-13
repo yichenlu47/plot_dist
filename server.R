@@ -1,6 +1,8 @@
 library(shiny)
 library(ggplot2)
 library(MASS)
+library(extraDistr)
+
 
 # Define server logic required to summarize and view the selected dataset
 shinyServer(function(input, output) {
@@ -49,7 +51,10 @@ r successful events in a sequence of Bernouli trias of success probability p'))
            "uniform" = runif(input$obs, min = input$unif_min, max = input$unif_max),
            "gaussian" = rnorm(input$obs, mean = input$gaus_mean, sd = sqrt(input$gaus_var)),
            "gamma" = rgamma(input$obs, shape = input$gamma_shape, scale = input$gamma_scale),
+           
            "cauchy" = rcauchy(input$obs, location = input$cauc_loc, scale = input$cauc_scale),
+           "hcauchy" = rhcauchy(input$obs, sigma = input$hcauc_scale),
+           
            "bernoulli" = rbinom(input$obs, size = 1, prob = input$bern_prob),
            "binomial" = rbinom(input$obs, size = input$binom_n, prob = input$binom_prob),
            "geometric" = rgeom(input$obs, prob = input$binom_prob),
@@ -74,13 +79,30 @@ r successful events in a sequence of Bernouli trias of success probability p'))
     data <- as.data.frame(dataInput())
     colnames(data) = "x"
     ggplot(data, aes(x=x)) + geom_density(alpha=0.4, fill="lightskyblue")+
-      geom_vline(aes(xintercept=mean(x)), color="deepskyblue",
-                 linetype="dashed", size = 1)+
+      geom_vline(aes(xintercept = mean(x)), color="orange", linetype="dashed", size = 1) +
+      geom_text(mapping = aes(x = mean(x), y = 0.05, label = paste0("Mean:", round(mean(x), 2)), hjust = - 0.5), color  = "orange") + 
+  
+    
+      geom_vline(aes(xintercept = median(x)), color="deepskyblue", linetype="dashed", size = 1) +  
+      geom_text(mapping = aes(x = median(x), y = 0.05, label = paste0("Median:", round(median(x), 2)), hjust = 1.5), color  = "deepskyblue") + 
       labs(title="Density curve", y = "Density")+
       theme_classic()
   })
   
-  
+  # posterior
+  output$post <- renderPlot({
+    rangeP <- seq(0, 1, length.out = 101)
+    lik <- dbinom(x = input$obs_ct, prob = rangeP, size = input$total_n)
+    
+    prior <- dnorm(x = rangeP, mean = input$pr_gaus_mean, sd = input$pr_gaus_sd)/15
+    post <- lik * prior / sum(lik * prior)
+    
+    plot(rangeP, lik, type = "l", xlab = "P(Black)", ylab = "Density") # likelihood
+    lines(rangeP, prior, col = "red") # prior
+    lines(rangeP, post, col = "blue")
+    legend("topleft", legend = c("Lik", "Prior", "Post"),
+           text.col = c("black", "red", "blue"), bty = "n")
+  })
   # Show the first "n" observations
   # output$view <- renderTable({
   #   head(dataInput(), n = 4)
