@@ -29,6 +29,14 @@ fluidPage(
                  condition = "input.dist == 'uniform'",
                  numericInput("unif_min", "Min (a):", 1, step = 1),
                  numericInput("unif_max", "Max (b):", 10, step = 1),
+                 tags$script("
+                      MathJax.Hub.Config({
+                      tex2jax: {
+                      inlineMath: [['$','$'], ['\\(','\\)']],
+                      processEscapes: true
+                      }
+                      });"
+                 ),
                  withMathJax(),
                  uiOutput('unif_pdf')
                ),
